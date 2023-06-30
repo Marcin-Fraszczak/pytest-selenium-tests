@@ -10,7 +10,9 @@ Series of automatic test for some of the form and email funcionalities.
 
 2) Inside the project directory create virtual environment:
 
-```python -m venv venv```
+```cd pytest-selenium-tests```
+
+```python3 -m venv venv```
 
 and activate it:
 

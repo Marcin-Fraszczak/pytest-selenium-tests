@@ -24,7 +24,9 @@ def mail_url():
 
 @pytest.fixture
 def driver():
-	return webdriver.Chrome()
+	driver = webdriver.Chrome()
+	driver.implicitly_wait(4)
+	return driver
 
 
 @pytest.fixture
