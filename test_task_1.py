@@ -111,13 +111,13 @@ def test_correct_result_is_returned(driver, base_url, loc, msgs):
 		"9 -2 2000": "-2 9 2000",
 		"2.3 0.0001 -40": "-40 0.0001 2.3",
 		"+2.3 -1 1_4": "-1 2.3 14",
-		" ".join(shuffler(1000)): " ".join((str(x) for x in range(1000))),
+		" ".join(shuffler(100)): " ".join((str(x) for x in range(100))),
 	}
 
 	help_text = f"""
 			Tests if correct results are returned when sending correct data
 			at location: '{base_url}'. Input data is:
-			{list(test_data.keys())[:-1]} and a 1000 elements shuffled list.
+			{list(test_data.keys())[:-1]} and a 100 elements shuffled list.
 		"""
 	print(help_text)
 

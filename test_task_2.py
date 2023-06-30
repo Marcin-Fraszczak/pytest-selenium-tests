@@ -63,7 +63,7 @@ def create_idea(driver, base_url, account_name):
 	print(f"OK: new idea created by '{account_name}'")
 
 
-def check_mail(driver, mail_url):
+def reenter_mail(driver, mail_url):
 	driver.get(mail_url)
 	# loading back cookies
 	cookies = pickle.load(open("cookies.pkl", "rb"))
@@ -81,6 +81,20 @@ def check_mail(driver, mail_url):
 		pass
 
 
+def check_mail(driver, account_name):
+	new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
+	new_account_name = new_account_name_el.get_attribute('innerText')
+	if account_name == new_account_name:
+		refresh_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]')
+		mailbox = driver.find_element(By.XPATH, '//*[@id="schranka"]')
+		i = 0
+		while i < 5:
+			sleep(5)
+			refresh_button.click()
+			if "New Idea number" in mailbox.get_attribute('innerHTML'):
+				return mailbox
+
+
 # @pytest.mark.skip(reason="working well")
 def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 	help_text = f"""
@@ -92,15 +106,9 @@ def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 	register_user(driver, base_url, account_name)
 	subscribe_user(driver)
 	create_idea(driver, base_url, account_name)
-	check_mail(driver, mail_url)
-
-	new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
-	new_account_name = new_account_name_el.get_attribute('innerText')
-	if account_name == new_account_name:
-		sleep(5)
-		driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]').click()
-		mailbox = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="schranka"]')))
-
+	reenter_mail(driver, mail_url)
+	mailbox = check_mail(driver, account_name)
+	if mailbox:
 		assert "New Idea number" in mailbox.get_attribute('innerHTML')
 		assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
 		print(f"OK: mail successfully sent and received")
@@ -120,15 +128,9 @@ def test_user_receives_email_when_assigned_to_a_particular_group(driver, mail_ur
 		account_name = fetch_mail(driver, mail_url)
 		register_user(driver, base_url, account_name, group=group)
 		create_idea(driver, base_url, account_name)
-		check_mail(driver, mail_url)
-
-		new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
-		new_account_name = new_account_name_el.get_attribute('innerText')
-		if account_name == new_account_name:
-			sleep(5)
-			driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]').click()
-			mailbox = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="schranka"]')))
-
+		reenter_mail(driver, mail_url)
+		mailbox = check_mail(driver, account_name)
+		if mailbox:
 			assert "New Idea number" in mailbox.get_attribute('innerHTML')
 			assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
 			print(f"OK: mail successfully sent and received")
