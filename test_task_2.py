@@ -13,13 +13,7 @@ import pickle
 """
 
 
-# @pytest.mark.skip(reason="working well")
-def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
-	help_text = f"""
-		Tests if user outside of specified groups doesn't receive email.
-	"""
-	print(help_text)
-
+def fetch_mail(driver, mail_url):
 	driver.get(mail_url)
 	driver.maximize_window()
 
@@ -28,11 +22,14 @@ def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 
 	account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
 	account_name = account_name_el.get_attribute('innerText')
-	# saving cookies
-	pickle.dump(driver.get_cookies() , open("cookies.pkl","wb"))
-	# session_id = driver.session_id
+	# saving cookies to recreate session
+	pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb"))
 	print(f"OK: email account '{account_name}' created")
 
+	return account_name
+
+
+def register_user(driver, base_url, account_name, group='No group'):
 	driver.get(f"{base_url}users/register/")
 
 	username_input = driver.find_element(By.XPATH, '//*[@id="id_username"]')
@@ -42,15 +39,20 @@ def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 
 	username_input.send_keys(account_name)
 	password_input.send_keys("Testpass123#")
-	group_select_element.select_by_visible_text("No group")
+	group_select_element.select_by_visible_text(group)
 	register_button.click()
 	print(f"OK: user with username '{account_name}' and created via register form")
 
-	subscribe_button = WebDriverWait(driver, 5).until(
-	EC.element_to_be_clickable((By.XPATH, '//*[@id="subscribe_form"]/div/button'))
+
+def subscribe_user(driver):
+	subscribe_button = WebDriverWait(driver, 2).until(
+		EC.element_to_be_clickable((By.XPATH, '//*[@id="subscribe_form"]/div/button'))
 	)
 	subscribe_button.click()
+	print(f"OK: user subscribed")
 
+
+def create_idea(driver, base_url, account_name):
 	driver.get(f"{base_url}users/ideas/")
 	title_input = driver.find_element(By.XPATH, '//*[@id="id_title"]')
 	content_input = driver.find_element(By.XPATH, '//*[@id="id_content"]')
@@ -60,33 +62,50 @@ def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 	submit_button.click()
 	print(f"OK: new idea created by '{account_name}'")
 
+
+def check_mail(driver, mail_url):
 	driver.get(mail_url)
 	# loading back cookies
 	cookies = pickle.load(open("cookies.pkl", "rb"))
 	for cookie in cookies:
 		driver.add_cookie(cookie)
-	# driver.session_id = session_id
+	driver.refresh()
 
 	# removing possible adds
 	try:
-		ad_cancel = WebDriverWait(driver, 3).until(
+		ad_cancel = WebDriverWait(driver, 1).until(
 			EC.element_to_be_clickable((By.XPATH, '//*[@id="dismiss-button"]'))
 		)
-		ad_cancel = driver.find_element(By.XPATH, '//*[@id="dismiss-button"]')
 		ad_cancel.click()
 	except TimeoutException:
 		pass
 
 
-	refresh_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]')
-	refresh_button.click()
+@pytest.mark.skip(reason="working well")
+def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
+	help_text = f"""
+		User not belonging to default group, can subscribe and receive emails.
+	"""
+	print(help_text)
 
-	mailbox = driver.find_element(By.XPATH, '//*[@id="schranka"]')
+	account_name = fetch_mail(driver, mail_url)
+	register_user(driver, base_url, account_name)
+	subscribe_user(driver)
+	create_idea(driver, base_url, account_name)
+	check_mail(driver, mail_url)
 
-	# assert "New Idea number" in mailbox.get_attribute('innerHTML')
-	# assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
-	# print(f"OK: mail successfully sent and received")
-	print(f"ERROR: MinuteInbox page reload deletes test account")
+	new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
+	new_account_name = new_account_name_el.get_attribute('innerText')
+	if account_name == new_account_name:
+		sleep(5)
+		driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]').click()
+		mailbox = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="schranka"]')))
+
+		assert "New Idea number" in mailbox.get_attribute('innerHTML')
+		assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
+		print(f"OK: mail successfully sent and received")
+	else:
+		print(f"ERROR: MinuteInbox page reload deletes test account")
 
 
 # @pytest.mark.skip(reason="working well")
@@ -98,65 +117,20 @@ def test_user_receives_email_when_assigned_to_a_particular_group(driver, mail_ur
 	print(help_text)
 
 	for group in groups:
-		driver.get(mail_url)
-		driver.maximize_window()
+		account_name = fetch_mail(driver, mail_url)
+		register_user(driver, base_url, account_name, group=group)
+		create_idea(driver, base_url, account_name)
+		check_mail(driver, mail_url)
 
-		delete_account = driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/a[1]")
-		delete_account.click()
+		new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
+		new_account_name = new_account_name_el.get_attribute('innerText')
+		if account_name == new_account_name:
+			sleep(5)
+			driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]').click()
+			mailbox = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="schranka"]')))
 
-		account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
-		account_name = account_name_el.get_attribute('innerText')
-		# saving cookies
-		pickle.dump(driver.get_cookies() , open("cookies.pkl","wb"))
-		# session_id = driver.session_id
-		print(f"OK: email account '{account_name}' created")
-
-		driver.get(f"{base_url}users/register/")
-
-		username_input = driver.find_element(By.XPATH, '//*[@id="id_username"]')
-		password_input = driver.find_element(By.XPATH, '//*[@id="id_password"]')
-		group_select_element = Select(driver.find_element(By.XPATH, '//*[@id="id_group"]'))
-		register_button = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/div/form/button')
-
-		username_input.send_keys(account_name)
-		password_input.send_keys("Testpass123#")
-		group_select_element.select_by_visible_text(group)
-		register_button.click()
-		print(f"OK: user with username '{account_name}' and created via register form")
-
-		driver.get(f"{base_url}users/ideas/")
-		title_input = driver.find_element(By.XPATH, '//*[@id="id_title"]')
-		content_input = driver.find_element(By.XPATH, '//*[@id="id_content"]')
-		submit_button = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/div/form/button')
-		title_input.send_keys(f"{account_name} own idea")
-		content_input.send_keys("content")
-		submit_button.click()
-		print(f"OK: new idea created by '{account_name}'")
-
-		driver.get(mail_url)
-		# loading back cookies
-		cookies = pickle.load(open("cookies.pkl", "rb"))
-		for cookie in cookies:
-			driver.add_cookie(cookie)
-		# driver.session_id = session_id
-
-		# removing possible adds
-		try:
-			ad_cancel = WebDriverWait(driver, 3).until(
-				EC.element_to_be_clickable((By.XPATH, '//*[@id="dismiss-button"]'))
-			)
-			ad_cancel = driver.find_element(By.XPATH, '//*[@id="dismiss-button"]')
-			ad_cancel.click()
-		except TimeoutException:
-			pass
-
-
-		refresh_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]')
-		refresh_button.click()
-
-		mailbox = driver.find_element(By.XPATH, '//*[@id="schranka"]')
-
-		# assert "New Idea number" in mailbox.get_attribute('innerHTML')
-		# assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
-		# print(f"OK: mail successfully sent and received")
-		print(f"ERROR: MinuteInbox page reload deletes test account")
+			assert "New Idea number" in mailbox.get_attribute('innerHTML')
+			assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
+			print(f"OK: mail successfully sent and received")
+		else:
+			print(f"ERROR: MinuteInbox page reload deletes test account")
