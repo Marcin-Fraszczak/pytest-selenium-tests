@@ -93,6 +93,7 @@ def check_mail(driver, account_name):
 			refresh_button.click()
 			if "New Idea number" in mailbox.get_attribute('innerHTML'):
 				return mailbox
+			i += 1
 
 
 # @pytest.mark.skip(reason="working well")
