@@ -81,7 +81,7 @@ def check_mail(driver, mail_url):
 		pass
 
 
-@pytest.mark.skip(reason="working well")
+# @pytest.mark.skip(reason="working well")
 def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
 	help_text = f"""
 		User not belonging to default group, can subscribe and receive emails.

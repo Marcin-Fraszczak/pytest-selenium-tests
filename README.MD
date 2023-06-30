@@ -26,4 +26,6 @@ and activate it:
 
 ```pytest --html=report.html --self-contained-html```
 
-5) It will create 'report.html' file, with 'Show all details' link to documentation. 
+5) It will run tests and create 'report.html' file.
+
+6) In 'report.html' file choose 'Show all details' link to see all documentation. 
