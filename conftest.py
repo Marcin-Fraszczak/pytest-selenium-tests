@@ -14,14 +14,22 @@ def pytest_html_report_title(report):
 
 @pytest.fixture
 def base_url():
-	base_url = 'https://marcinfraszczak3.eu.pythonanywhere.com/'
-	return base_url
+	return 'https://marcinfraszczak3.eu.pythonanywhere.com/'
+
+
+@pytest.fixture
+def mail_url():
+	return 'https://www.minuteinbox.com/'
 
 
 @pytest.fixture
 def driver():
-	driver = webdriver.Chrome()
-	return driver
+	return webdriver.Chrome()
+
+
+@pytest.fixture
+def driver2():
+	return webdriver.Chrome()
 
 
 @pytest.fixture
@@ -33,29 +41,20 @@ def s_driver():
 
 
 @pytest.fixture
-def form_id():
-	form_id = 'numbers_sorting_form'
-	return form_id
+def loc():
+	return {
+		'form_id': 'numbers_sorting_form',
+		'input_id': 'numbers_sorting_input',
+		'result_id': 'out-data',
+
+	}
 
 
 @pytest.fixture
-def input_id():
-	input_id = 'numbers_sorting_input'
-	return input_id
+def msgs():
+	return {
+		'no_input': 'No input!',
+		'invalid_input': 'Invalid input!',
+		'required': 'This field is required.',
 
-
-@pytest.fixture
-def result_id():
-	result_id = 'out-data'
-	return result_id
-
-@pytest.fixture
-def error_msg():
-	error_msg = 'No input!'
-	return error_msg
-
-
-@pytest.fixture
-def field_msg():
-	field_msg = 'This field is required'
-	return field_msg
+	}
