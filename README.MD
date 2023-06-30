@@ -28,4 +28,4 @@ and activate it:
 
 5) It will run tests and create 'report.html' file.
 
-6) In 'report.html' file choose 'Show all details' link to see all documentation. 
+6) Open 'report.html' file and choose ``Show all details`` link to see the documentation. 
