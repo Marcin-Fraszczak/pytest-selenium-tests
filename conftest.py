@@ -14,12 +14,7 @@ def pytest_html_report_title(report):
 
 @pytest.fixture
 def base_url():
-	return 'https://marcinfraszczak3.eu.pythonanywhere.com/'
-
-
-@pytest.fixture
-def mail_url():
-	return 'https://www.minuteinbox.com/'
+	return 'https://self-testing.up.railway.app/'
 
 
 @pytest.fixture

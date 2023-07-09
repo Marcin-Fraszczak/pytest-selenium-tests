@@ -1,139 +1,186 @@
 import pytest
-from selenium.common import TimeoutException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
+from requests.exceptions import RequestException
+from requests.auth import HTTPBasicAuth
+from datetime import datetime
+from os import getenv
+from sys import exit
 from time import sleep
-import pickle
+from dotenv import load_dotenv
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-"""
-	Run command:
-		pytest --html=report.html --self-contained-html
-"""
+load_dotenv()
+mailosaur_api_key = getenv('MAILOSAUR_API_KEY')
+mailosaur_server = getenv('MAILOSAUR_SERVER')
+mailosaur_domain = getenv('MAILOSAUR_DOMAIN')
+mailosaur_url = getenv('MAILOSAUR_URL')
+
+if not any([mailosaur_url, mailosaur_domain, mailosaur_server, mailosaur_api_key]):
+	print("Env variables not available!")
+	exit(1)
+else:
+	auth = HTTPBasicAuth(mailosaur_api_key, "")
 
 
-def fetch_mail(driver, mail_url):
-	driver.get(mail_url)
-	driver.maximize_window()
+def delete_mailosaur_messages():
+	"""Calls mailosaur API to delete all emails on a specified server.
+	 If successful, should return '204'. Else return 'None'."""
+	for i in range(3):
+		try:
+			response = requests.delete(f"{mailosaur_url}/api/messages?server={mailosaur_server}", auth=auth)
+			return response.status_code
+		except RequestException:
+			sleep(0.5)
 
-	delete_account = driver.find_element(By.XPATH, "/html/body/div[2]/div[3]/div/a[1]")
-	delete_account.click()
 
-	account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
-	account_name = account_name_el.get_attribute('innerText')
-	# saving cookies to recreate session
-	pickle.dump(driver.get_cookies(), open("cookies.pkl", "wb"))
-	print(f"OK: email account '{account_name}' created")
+def list_mailosaur_messages():
+	"""Calls mailosaur API for the list of all emails stored on a specified server.
+	 Returns None in case of any problems, if succeeded, returns list of dictionaries
+	 with emails data."""
+	for i in range(3):
+		try:
+			response = requests.get(f"{mailosaur_url}/api/messages?server={mailosaur_server}", auth=auth)
+			if response.status_code == 200:
+				return response.json()['items']
+		except RequestException:
+			sleep(0.5)
 
-	return account_name
+
+def get_username():
+	"""Returns email address based on current time.
+	 Returned email address is unique every millisecond."""
+	return f"{int(datetime.now().timestamp() * 1000)}@{mailosaur_domain}"
 
 
 def register_user(driver, base_url, account_name, group='No group'):
+	"""Registers new user using form."""
 	driver.get(f"{base_url}users/register/")
 
-	username_input = driver.find_element(By.XPATH, '//*[@id="id_username"]')
-	password_input = driver.find_element(By.XPATH, '//*[@id="id_password"]')
-	group_select_element = Select(driver.find_element(By.XPATH, '//*[@id="id_group"]'))
-	register_button = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/div/form/button')
+	username_input = driver.find_element(By.ID, 'id_username')
+	password_input = driver.find_element(By.ID, 'id_password')
+	group_select_element = Select(driver.find_element(By.ID, 'id_group'))
+	register_button = driver.find_element(By.XPATH, '// *[ @ id = "registration_form"] / button')
 
 	username_input.send_keys(account_name)
 	password_input.send_keys("Testpass123#")
 	group_select_element.select_by_visible_text(group)
 	register_button.click()
-	print(f"OK: user with username '{account_name}' and created via register form")
+	print(f"OK: user with username '{account_name}' created via register form")
 
 
-def subscribe_user(driver):
+def remove_alerts(driver):
+	"""Removes any alerts that can interfere with Selenium clicking."""
+	alerts = driver.find_elements(By.CLASS_NAME, 'btn-close')
+	if alerts:
+		for alert in alerts:
+			alert.click()
+		sleep(1)
+
+
+def subscribe_user(driver, account_name):
+	"""Changes user 'subscribed' status to 'True' by clicking button on the profile panel."""
+	remove_alerts(driver)
 	subscribe_button = WebDriverWait(driver, 2).until(
-		EC.element_to_be_clickable((By.XPATH, '//*[@id="subscribe_form"]/div/button'))
+		EC.element_to_be_clickable((By.XPATH, '//*[@id="subscribe_form"]/button'))
 	)
 	subscribe_button.click()
-	print(f"OK: user subscribed")
+	print(f"OK: user '{account_name}' subscribed")
 
 
 def create_idea(driver, base_url, account_name):
+	"""Creates new 'Idea' object using the form."""
+	idea_title = f"{account_name} own idea"
+
 	driver.get(f"{base_url}users/ideas/")
-	title_input = driver.find_element(By.XPATH, '//*[@id="id_title"]')
-	content_input = driver.find_element(By.XPATH, '//*[@id="id_content"]')
-	submit_button = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/div/form/button')
-	title_input.send_keys(f"{account_name} own idea")
+	title_input = driver.find_element(By.ID, 'id_title')
+	content_input = driver.find_element(By.ID, 'id_content')
+	submit_button = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/form/button')
+	title_input.send_keys(idea_title)
 	content_input.send_keys("content")
 	submit_button.click()
-	print(f"OK: new idea created by '{account_name}'")
+	print(f"OK: new idea submitted by '{account_name}'")
+
+	ideas_list = driver.find_element(By.XPATH, '/html/body/section/div/div/div/div/ul')
+	if idea_title in ideas_list.get_attribute('innerHTML'):
+		print(f"OK: new idea added to the database")
 
 
-def reenter_mail(driver, mail_url):
-	driver.get(mail_url)
-	# loading back cookies
-	cookies = pickle.load(open("cookies.pkl", "rb"))
-	for cookie in cookies:
-		driver.add_cookie(cookie)
-	driver.refresh()
-
-	# removing possible adds
-	try:
-		ad_cancel = WebDriverWait(driver, 1).until(
-			EC.element_to_be_clickable((By.XPATH, '//*[@id="dismiss-button"]'))
-		)
-		ad_cancel.click()
-	except TimeoutException:
-		pass
-
-
-def check_mail(driver, account_name):
-	new_account_name_el = driver.find_element(By.XPATH, '//*[@id="email"]')
-	new_account_name = new_account_name_el.get_attribute('innerText')
-	if account_name == new_account_name:
-		refresh_button = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div/a[5]')
-		mailbox = driver.find_element(By.XPATH, '//*[@id="schranka"]')
-		i = 0
-		while i < 5:
-			sleep(5)
-			refresh_button.click()
-			if "New Idea number" in mailbox.get_attribute('innerHTML'):
-				return mailbox
-			i += 1
+def delete_user(driver, base_url):
+	"""After the test, user account is deleted from the database."""
+	driver.get(f"{base_url}users/profile/")
+	delete_button = driver.find_element(By.NAME, 'delete_account')
+	delete_button.click()
 
 
 # @pytest.mark.skip(reason="working well")
-def test_user_receives_email_when_subscribed(driver, mail_url, base_url, loc):
+def test_user_receives_email_when_subscribed(driver, base_url):
 	help_text = f"""
-		User not belonging to default group, can subscribe and receive emails.
+		User not belonging to default group, can still subscribe and receive emails.
 	"""
 	print(help_text)
 
-	account_name = fetch_mail(driver, mail_url)
+	account_name = get_username()
 	register_user(driver, base_url, account_name)
-	subscribe_user(driver)
+	subscribe_user(driver, account_name)
+	delete_mailosaur_messages()
 	create_idea(driver, base_url, account_name)
-	reenter_mail(driver, mail_url)
-	mailbox = check_mail(driver, account_name)
-	if mailbox:
-		assert "New Idea number" in mailbox.get_attribute('innerHTML')
-		assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
-		print(f"OK: mail successfully sent and received")
-	else:
-		print(f"ERROR: MinuteInbox page reload deletes test account")
+	delete_user(driver, base_url)
+
+	current, limit, result = 0, 5, False
+	while current < limit:
+		mailbox = list_mailosaur_messages()
+		if mailbox:
+			recipients_list = list(map(lambda item: [to['email'] for to in item['to']], mailbox))
+			result = any([1 for item in recipients_list if account_name in item])
+			if result:
+				print(f"OK: email received")
+				break
+			else:
+				sleep(1)
+				current += 1
+		else:
+			sleep(2)
+			current += 1
+	if current == limit:
+		print(f"ERROR: email not received within allowed timeout")
+	delete_mailosaur_messages()
+	assert result
 
 
-# @pytest.mark.skip(reason="working well")
-def test_user_receives_email_when_assigned_to_a_particular_group(driver, mail_url, base_url, loc):
-	groups = ['H/Div', 'H/Sec']
+def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
+	default_groups = ["H/Div", "H/Sec"]
 	help_text = f"""
-		Tests if emails are sent to correct users based on group assignment. Default groups to receive emails: {groups}.
+		User belonging to default group receives emails.
+		Default groups are: {default_groups}.
 	"""
 	print(help_text)
 
-	for group in groups:
-		account_name = fetch_mail(driver, mail_url)
+	for group in default_groups:
+		account_name = get_username()
 		register_user(driver, base_url, account_name, group=group)
+		subscribe_user(driver, account_name)
+		delete_mailosaur_messages()
 		create_idea(driver, base_url, account_name)
-		reenter_mail(driver, mail_url)
-		mailbox = check_mail(driver, account_name)
-		if mailbox:
-			assert "New Idea number" in mailbox.get_attribute('innerHTML')
-			assert "fraszczak.programming@gmail.com" in mailbox.get_attribute('innerHTML')
-			print(f"OK: mail successfully sent and received")
-		else:
-			print(f"ERROR: MinuteInbox page reload deletes test account")
+		delete_user(driver, base_url)
+
+		current, limit, result = 0, 5, False
+		while current < limit:
+			mailbox = list_mailosaur_messages()
+			if mailbox:
+				recipients_list = list(map(lambda item: [to['email'] for to in item['to']], mailbox))
+				result = any([1 for item in recipients_list if account_name in item])
+				if result:
+					print(f"OK: email received")
+					break
+				else:
+					sleep(1)
+					current += 1
+			else:
+				sleep(2)
+				current += 1
+		if current == limit:
+			print(f"ERROR: email not received within allowed timeout")
+		delete_mailosaur_messages()
+		assert result
