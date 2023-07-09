@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup as Bs
 
 load_dotenv()
 mailosaur_api_key = getenv('MAILOSAUR_API_KEY')
