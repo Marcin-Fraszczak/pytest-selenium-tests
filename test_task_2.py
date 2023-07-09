@@ -160,7 +160,6 @@ def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
 	for group in default_groups:
 		account_name = get_username()
 		register_user(driver, base_url, account_name, group=group)
-		subscribe_user(driver, account_name)
 		delete_mailosaur_messages()
 		create_idea(driver, base_url, account_name)
 		delete_user(driver, base_url)
