@@ -13,9 +13,14 @@
 </a>
 <br>
 <br>
-<a href="{% url 'reports:report' %}"
+<a href="{% url 'reports:report' %}?task1=True"
    class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    Start testing.
+    Start testing task_1 (numbers sorting form).
+    <i class="fa-solid fa-microscope"></i>
+</a><br>
+<a href="{% url 'reports:report' %}?task2=True"
+   class="btn btn-outline-secondary btn-lg mt-5 shadow">
+    Start testing task_2 (email sending functionality).
     <i class="fa-solid fa-microscope"></i>
 </a>
 <div class="mt-3">

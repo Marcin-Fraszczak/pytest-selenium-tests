@@ -166,6 +166,7 @@ def test_user_receives_email_when_subscribed(driver, base_url):
 		print(f"ERROR: email not received within allowed timeout")
 	delete_mailosaur_messages()
 	assert result
+	sleep(1)
 
 
 def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
@@ -183,13 +184,13 @@ def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
 		create_idea(driver, base_url, account_name)
 		delete_user(driver, base_url)
 
-		current, limit, result = 0, 5, False
+		current, limit, present = 0, 5, False
 		while current < limit:
 			mailbox = list_mailosaur_messages()
 			if mailbox:
 				recipients_list = list(map(lambda item: [to['email'] for to in item['to']], mailbox))
-				result = any([1 for item in recipients_list if account_name in item])
-				if result:
+				present = any([1 for item in recipients_list if account_name in item])
+				if present:
 					print(f"OK: email received")
 					break
 				else:
@@ -201,7 +202,8 @@ def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
 		if current == limit:
 			print(f"ERROR: email not received within allowed timeout")
 		delete_mailosaur_messages()
-		assert result
+		assert present
+		sleep(1)
 
 
 def test_user_without_group_or_subscription_not_receiving_email(driver, base_url):
@@ -248,3 +250,4 @@ def test_user_without_group_or_subscription_not_receiving_email(driver, base_url
 	delete_mailosaur_messages()
 	assert present
 	assert not not_present
+	sleep(1)
