@@ -13,6 +13,14 @@ sudo bash -c "echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stab
 sudo apt -y update
 sudo apt -y install google-chrome-stable
 
+#version=$(google-chrome --version)
+
+wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+sudo mv chromedriver /usr/bin/chromedriver
+sudo chown root:root /usr/bin/chromedriver
+sudo chmod +x /usr/bin/chromedriver
+
 python manage.py migrate
 #mkdir static
 #python manage.py collectstatic
