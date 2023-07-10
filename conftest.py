@@ -1,10 +1,12 @@
 import pytest
+from os import getenv
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 """
 	Run command:
 		pytest --html=report.html --self-contained-html
+		pytest --html=templates/tests/report.html --self-contained-html
 """
 
 
@@ -19,8 +21,13 @@ def base_url():
 
 @pytest.fixture
 def driver():
-	driver = webdriver.Chrome()
-	driver.implicitly_wait(4)
+	chrome_options = Options()
+	headless = getenv('HEADLESS', False)
+	if headless:
+		chrome_options.add_argument('--headless')
+	chrome_options.add_argument('--no-sandbox')
+	chrome_options.add_argument('--disable-dev-shm-usage')
+	driver = webdriver.Chrome(options=chrome_options)
 	return driver
 
 

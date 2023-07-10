@@ -11,6 +11,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+"""
+	Run command:
+		pytest --html=report.html --self-contained-html
+		pytest --html=templates/tests/report.html --self-contained-html
+"""
+
 load_dotenv()
 mailosaur_api_key = getenv('MAILOSAUR_API_KEY')
 mailosaur_server = getenv('MAILOSAUR_SERVER')

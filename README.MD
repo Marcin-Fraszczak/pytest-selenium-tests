@@ -2,6 +2,10 @@
 
 Series of automatic test for some of the form and email funcionalities.
 
+## Live version:
+
+https://pytest-selenium-tests-production.up.railway.app/
+
 ### To run it locally:
 
 1) Clone the repo:
