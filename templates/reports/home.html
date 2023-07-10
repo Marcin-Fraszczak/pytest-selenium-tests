@@ -8,23 +8,33 @@
 </h2>
 <a href="https://github.com/Marcin-Fraszczak/pytest-selenium-tests/tree/django_app"
    class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    See the full code here.
     <i class="fa-brands fa-github"></i>
+    See the full code here.
 </a>
 <br>
 <br>
 <a href="{% url 'reports:report' %}?task1=True"
    class="btn btn-outline-secondary btn-lg mt-5 shadow">
+    <i class="fa-solid fa-microscope"></i>
     Start testing task_1 (numbers sorting form).
-    <i class="fa-solid fa-microscope"></i>
 </a><br>
-<a href="{% url 'reports:report' %}?task2=True"
+<a href="{% url 'reports:report' %}?task21=True"
    class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    Start testing task_2 (email sending functionality).
     <i class="fa-solid fa-microscope"></i>
+    Start testing task_2 part 1 (email sending functionality).
+</a>
+<a href="{% url 'reports:report' %}?task22=True"
+   class="btn btn-outline-secondary btn-lg mt-5 shadow">
+    <i class="fa-solid fa-microscope"></i>
+    Start testing task_2 part 2 (email sending functionality).
+</a>
+<a href="{% url 'reports:report' %}?task23=True"
+   class="btn btn-outline-secondary btn-lg mt-5 shadow">
+    <i class="fa-solid fa-microscope"></i>
+    Start testing task_2 part 3 (email sending functionality).
 </a>
 <div class="mt-3">
-    <span>Should take ~30 seconds, for now only behind the scenes.</span><br>
+    <span>Task 2 divided into smaller chunks to deal with timeout issues.</span><br>
     <span>Still working on showing the real-time action.</span>
 </div>
 {% endblock content %}
