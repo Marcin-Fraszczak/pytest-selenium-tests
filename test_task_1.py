@@ -8,6 +8,7 @@ from random import shuffle
 """
 	Run command:
 		pytest --html=report.html --self-contained-html
+		pytest --html=templates/tests/report.html --self-contained-html
 """
 
 
@@ -19,7 +20,6 @@ def test_form_exists_and_is_functional_at_correct_location(driver, base_url, loc
 	print(help_text)
 
 	driver.get(base_url)
-	driver.maximize_window()
 
 	form_el = driver.find_element(By.ID, loc['form_id'])
 	assert form_el
@@ -50,7 +50,6 @@ def test_warning_displayed_for_request_with_no_input(driver, base_url, loc, msgs
 	print(help_text)
 
 	driver.get(base_url)
-	driver.maximize_window()
 
 	form_el = driver.find_element(By.ID, loc['form_id'])
 	# Easier version, but not testing the button:
@@ -82,7 +81,6 @@ def test_warning_displayed_for_incorrect_datatype_posted(driver, base_url, loc, 
 	print(help_text)
 
 	driver.get(base_url)
-	driver.maximize_window()
 
 	incorrect_data = ["a", "Ala ma kota 34", '!54 $ 2', ]
 	for data in incorrect_data:
@@ -122,7 +120,6 @@ def test_correct_result_is_returned(driver, base_url, loc, msgs):
 	print(help_text)
 
 	driver.get(base_url)
-	driver.maximize_window()
 
 	for data in test_data:
 		form_el = driver.find_element(By.ID, loc['form_id'])

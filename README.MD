@@ -1,6 +1,11 @@
-## Pytest + Selenium
+## Pytest + Selenium + requests
 
 Series of automatic test for some of the form and email funcionalities.
+
+### Live version:
+
+
+
 
 ### To run it locally:
 
