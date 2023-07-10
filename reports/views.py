@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 import os
 
@@ -17,7 +17,6 @@ class ReportView(View):
 		path_to_report = os.path.join(os.getcwd(), 'templates', 'tests', 'report.html')
 		if os.path.exists(path_to_report):
 			os.remove(path_to_report)
-
 		cache.clear()
 
 		if 'task1' in request.GET:
@@ -33,4 +32,9 @@ class ReportView(View):
 		if command:
 			subprocess.run(command.split(" "))
 
+		return redirect("reports:result")
+
+
+class ResultView(View):
+	def get(self, request):
 		return render(request, "tests/test_results.html")
