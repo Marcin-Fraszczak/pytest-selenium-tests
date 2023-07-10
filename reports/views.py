@@ -11,11 +11,14 @@ class HomeView(View):
 class ReportView(View):
 	def get(self, request):
 		import subprocess
+		from django.core.cache import cache
 
 		# deletes old report.html file, if it exists
 		path_to_report = os.path.join(os.getcwd(), 'templates', 'tests', 'report.html')
 		if os.path.exists(path_to_report):
 			os.remove(path_to_report)
+
+		cache.clear()
 
 		if 'task1' in request.GET:
 			command = "pytest test_task_1.py --html=templates/tests/report.html --self-contained-html"
@@ -30,4 +33,4 @@ class ReportView(View):
 		if command:
 			subprocess.run(command.split(" "))
 
-		return render(request, "tests/report.html")
+		return render(request, "tests/test_results.html")
