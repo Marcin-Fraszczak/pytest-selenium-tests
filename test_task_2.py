@@ -24,6 +24,7 @@ mailosaur_domain = getenv('MAILOSAUR_DOMAIN')
 mailosaur_url = getenv('MAILOSAUR_URL')
 
 print(mailosaur_server)
+print(mailosaur_domain)
 
 if not any([mailosaur_url, mailosaur_domain, mailosaur_server, mailosaur_api_key]):
 	print("Env variables not available!")
@@ -135,42 +136,42 @@ def delete_user(driver, base_url, account_name=None):
 	delete_button = driver.find_element(By.NAME, 'delete_account')
 	delete_button.click()
 
-#
-# # @pytest.mark.skip(reason="working well")
-# def test_user_receives_email_when_subscribed(driver, base_url):
-# 	help_text = f"""
-# 		User not belonging to default group, can still subscribe and receive emails.
-# 	"""
-# 	print(help_text)
-#
-# 	account_name = get_username()
-# 	register_user(driver, base_url, account_name)
-# 	subscribe_user(driver, account_name)
-# 	delete_mailosaur_messages()
-# 	create_idea(driver, base_url, account_name)
-# 	delete_user(driver, base_url)
-#
-# 	current, limit, result = 0, 5, False
-# 	while current < limit:
-# 		mailbox = list_mailosaur_messages()
-# 		if mailbox:
-# 			recipients_list = list(map(lambda item: [to['email'] for to in item['to']], mailbox))
-# 			result = any([1 for item in recipients_list if account_name in item])
-# 			if result:
-# 				print(f"OK: email received")
-# 				break
-# 			else:
-# 				sleep(1)
-# 				current += 1
-# 		else:
-# 			sleep(2)
-# 			current += 1
-# 	if current == limit:
-# 		print(f"ERROR: email not received within allowed timeout")
-# 	delete_mailosaur_messages()
-# 	assert result
-#
-#
+
+# @pytest.mark.skip(reason="working well")
+def test_user_receives_email_when_subscribed(driver, base_url):
+	help_text = f"""
+		User not belonging to default group, can still subscribe and receive emails.
+	"""
+	print(help_text)
+
+	account_name = get_username()
+	register_user(driver, base_url, account_name)
+	subscribe_user(driver, account_name)
+	delete_mailosaur_messages()
+	create_idea(driver, base_url, account_name)
+	delete_user(driver, base_url)
+
+	current, limit, result = 0, 5, False
+	while current < limit:
+		mailbox = list_mailosaur_messages()
+		if mailbox:
+			recipients_list = list(map(lambda item: [to['email'] for to in item['to']], mailbox))
+			result = any([1 for item in recipients_list if account_name in item])
+			if result:
+				print(f"OK: email received")
+				break
+			else:
+				sleep(1)
+				current += 1
+		else:
+			sleep(2)
+			current += 1
+	if current == limit:
+		print(f"ERROR: email not received within allowed timeout")
+	delete_mailosaur_messages()
+	assert result
+
+
 # def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
 # 	default_groups = ["H/Div", "H/Sec"]
 # 	help_text = f"""
