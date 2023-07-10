@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import View
+import os
 
 
 class HomeView(View):
@@ -10,6 +11,12 @@ class HomeView(View):
 class ReportView(View):
 	def get(self, request):
 		import subprocess
+
+		# deletes old report.html file, if it exists
+		path_to_report = os.path.join(os.getcwd(), 'templates', 'tests', 'report.html')
+		if os.path.exists(path_to_report):
+			os.remove(path_to_report)
+
 		if 'task1' in request.GET:
 			command = "pytest test_task_1.py --html=templates/tests/report.html --self-contained-html"
 		elif 'task21' in request.GET:
