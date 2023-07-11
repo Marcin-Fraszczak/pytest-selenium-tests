@@ -23,5 +23,5 @@ sudo chmod +x /usr/bin/chromedriver
 
 python manage.py migrate
 #mkdir static
-#python manage.py collectstatic
+python manage.py collectstatic
 gunicorn '_config.wsgi'

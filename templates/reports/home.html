@@ -3,38 +3,49 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-<h2>
+<h4>
     This is a standalone app made to test another live app. <br> It uses Selenium and Python's requests library.
-</h2>
+</h4>
 <a href="https://github.com/Marcin-Fraszczak/pytest-selenium-tests/tree/django_app"
-   class="btn btn-outline-secondary btn-lg mt-5 shadow">
+   class="btn btn-outline-secondary btn-lg m-4 shadow">
     <i class="fa-brands fa-github"></i>
     See the full code here.
 </a>
-<br>
-<br>
+
+<div class="mt-3">Task 1 - numbers sorting form:</div>
 <a href="{% url 'reports:report' %}?task1=True"
-   class="btn btn-outline-secondary btn-lg mt-5 shadow">
+   class="btn btn-outline-secondary btn-lg shadow">
     <i class="fa-solid fa-microscope"></i>
-    Start testing task_1 (numbers sorting form).
-</a><br>
-<a href="{% url 'reports:report' %}?task21=True"
-   class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    <i class="fa-solid fa-microscope"></i>
-    Start testing task_2 part 1 (email sending functionality).
+    Start testing Task 1
 </a>
-<a href="{% url 'reports:report' %}?task22=True"
-   class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    <i class="fa-solid fa-microscope"></i>
-    Start testing task_2 part 2 (email sending functionality).
-</a>
-<a href="{% url 'reports:report' %}?task23=True"
-   class="btn btn-outline-secondary btn-lg mt-5 shadow">
-    <i class="fa-solid fa-microscope"></i>
-    Start testing task_2 part 3 (email sending functionality).
-</a>
+
+<div class="mt-3">Task 2 - email sending functionality:</div>
+<div>
+    <a href="{% url 'reports:report' %}?task21=True"
+       class="btn btn-outline-secondary btn-lg shadow">
+        <i class="fa-solid fa-microscope"></i>
+        Start testing Task 2 part 1
+    </a>
+</div>
+<div>
+    <a href="{% url 'reports:report' %}?task22=True"
+       class="btn btn-outline-secondary btn-lg mt-3 shadow">
+        <i class="fa-solid fa-microscope"></i>
+        Start testing Task 2 part 2
+    </a>
+</div>
+<div>
+    <a href="{% url 'reports:report' %}?task23=True"
+       class="btn btn-outline-secondary btn-lg mt-3 shadow">
+        <i class="fa-solid fa-microscope"></i>
+        Start testing Task 2 part 3
+    </a>
+</div>
 <div class="mt-3">
     <span>Task 2 divided into smaller chunks to deal with timeout issues.</span><br>
-    <span>Still working on showing the real-time action.</span>
+    <span>Still working on showing the real-time action.</span><br>
+    <strong class="text-danger">Unfortunately, server is returning the same
+        report.html every time, although looking at
+        the logs, different tests are being run.</strong>
 </div>
 {% endblock content %}
