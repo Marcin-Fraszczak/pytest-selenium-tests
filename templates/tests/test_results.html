@@ -1,6 +1,6 @@
 {% extends '_base.html' %}
 
-
+{% block title %}Results{% endblock title %}
 
 {% block content %}
 <a href="{% url 'reports:home' %}"
@@ -8,4 +8,4 @@
     Back to Home
 </a>
 {% include 'tests/report.html' %}
-{% endblock content %}
+{% endblock content %}gc
