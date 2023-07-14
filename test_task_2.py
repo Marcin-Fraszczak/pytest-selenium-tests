@@ -167,6 +167,7 @@ def test_user_receives_email_when_subscribed(driver, base_url):
 		print(f"ERROR: email not received within allowed timeout")
 	delete_mailosaur_messages()
 	assert result
+	driver.quit()
 
 
 def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
@@ -203,7 +204,7 @@ def test_user_receives_email_when_assigned_to_default_group(driver, base_url):
 			print(f"ERROR: email not received within allowed timeout")
 		delete_mailosaur_messages()
 		assert result
-
+	driver.quit()
 
 def test_user_without_group_or_subscription_not_receiving_email(driver, base_url):
 	help_text = f"""
@@ -249,3 +250,4 @@ def test_user_without_group_or_subscription_not_receiving_email(driver, base_url
 	delete_mailosaur_messages()
 	assert present
 	assert not not_present
+	driver.quit()
