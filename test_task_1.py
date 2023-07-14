@@ -40,6 +40,7 @@ def test_form_exists_and_is_functional_at_correct_location(driver, base_url, loc
 	assert len(submit_buttons) > 0
 	submit_buttons[0].click()
 	print(f"OK: submit button is present and clickable")
+	driver.quit()
 
 
 # @pytest.mark.skip(reason="working well")
@@ -70,6 +71,7 @@ def test_warning_displayed_for_request_with_no_input(driver, base_url, loc, msgs
 	print(f"OK: field error is displayed")
 	assert msgs['required'] in field_error.get_attribute("innerHTML")
 	print(f"OK: '{msgs['required']}' is displayed")
+	driver.quit()
 
 
 # @pytest.mark.skip(reason="working well")
@@ -94,6 +96,7 @@ def test_warning_displayed_for_incorrect_datatype_posted(driver, base_url, loc, 
 		alert_el = driver.find_element(By.CLASS_NAME, "alert")
 		assert msgs['invalid_input'] in alert_el.get_attribute('innerHTML')
 		print(f"OK: '{msgs['invalid_input']}' alert is displayed inside the alert block for: '{data}'")
+		driver.quit()
 
 
 # @pytest.mark.skip(reason="working well")
@@ -135,3 +138,4 @@ def test_correct_result_is_returned(driver, base_url, loc, msgs):
 			print(f"OK: correct result returned for large input data")
 		else:
 			print(f"OK: correct result returned for {data}")
+	driver.quit()
