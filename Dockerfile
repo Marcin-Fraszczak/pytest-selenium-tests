@@ -8,8 +8,8 @@ ENV PYTHONUNBUFFERED 1
 
 RUN pip install --upgrade pip && \
     pip install -r /app/requirements.txt && \
-#    python manage.py makemigrations && \
-#    python manage.py migrate && \
+    python manage.py makemigrations && \
+    python manage.py migrate && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8000
